@@ -27,7 +27,7 @@ var twitter = new Twitter(config);
 //************************WEB SOCKET IMPLEMENTATION ************************
 
 var WebSocketServer = require('ws').Server;
-var wss = new WebSocketServer({port: 40510});
+var wss = new WebSocketServer({ app });
 let posts;
 let currentEvent;
 var error = function (err, response, body) {
