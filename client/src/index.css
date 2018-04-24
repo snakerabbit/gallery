@@ -1,0 +1,20 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'MyFontSBold';
+}
+.
+@font-face {
+  font-family: 'MyFontBold';
+  src: local('MyFontBold'), url(./static/fonts/proximanova-bold-webfont.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'MyFontReg';
+  src: local('MyFontReg'), url(./static/fonts/proximanova-reg-webfont.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'MyFontSBold';
+  src: local('MyFontSBold'), url(./static/fonts/proximanova-sbold-webfont.ttf) format('truetype');
+}
