@@ -28,8 +28,15 @@ var twitter = new Twitter(config);
 //************************WEB SOCKET IMPLEMENTATION ************************
 
 var WebSocketServer = require('ws').Server;
-var server = http.createServer(app);
-var wss = new WebSocketServer({server: app, port: 40510});
+
+const PORT = process.env.PORT || 40510;
+const INDEX = path.join(__dirname, 'index.html');
+
+const server = express()
+  .use((req, res) => res.sendFile(INDEX) )
+  .listen(PORT, () => console.log(`Listening on ${ PORT }`));
+var wss = new WebSocketServer({server: server});
+
 let posts;
 let currentEvent;
 var error = function (err, response, body) {
