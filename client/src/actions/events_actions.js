@@ -47,8 +47,9 @@ export const updateEvent = event => dispatch =>(
 
 export const setWebSocket = (id) => dispatch => {
   var HOST = window.location.origin.replace(/^http/, 'ws')
+  console.log(HOST);
   var ws = new WebSocket(HOST);
-  var ws2 = new WebSocket('ws://localhost:40510');
+  var ws2 = new WebSocket('ws://localhost:3001');
       setInterval(()=> {
         try{
                   ws.send('yay');
@@ -56,7 +57,6 @@ export const setWebSocket = (id) => dispatch => {
         catch(err) {
                   ws2.send('yay');
         }
-
       }, 3000);
 
   ws.onmessage = function(){

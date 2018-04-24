@@ -29,14 +29,77 @@ var twitter = new Twitter(config);
 
 var WebSocketServer = require('ws').Server;
 
-const PORT = process.env.PORT || 40510;
-const INDEX = path.join(__dirname, 'index.html');
 
-const server = express()
-  .use((req, res) => res.sendFile(INDEX) )
-  .listen(PORT, () => console.log(`Listening on ${ PORT }`));
+
+
+//************************ ROUTES ************************
+
+
+
+
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
+
+app.use(function(req, res, next) {
+ res.setHeader('Access-Control-Allow-Origin', '*');
+ res.setHeader('Access-Control-Allow-Credentials', 'true');
+ res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT,DELETE');
+ res.setHeader('Access-Control-Allow-Headers', 'Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers');
+ res.setHeader('Cache-Control', 'no-cache');
+ next();
+});
+
+
+router.get('/', function(req, res) {
+  res.json({message: 'API initialized'});
+});
+
+
+router.route('/events')
+.get(function(req, res) {
+  Event.find(function(err, events){
+      res.json(events);
+  })
+
+})
+.post(function(req, res){
+  let newEvent = new Event();
+  newEvent.name = req.body.event.name;
+  newEvent.hashtag = req.body.event.hashtag;
+  newEvent.save(function(err, event) {
+    if (err){
+            res.send(err);
+    }
+    currentEvent = newEvent;
+    res.json(event);
+  });
+});
+
+router.route('/events/:event_id')
+  .get(function(req, res){
+    Event.findOne({_id: req.params.event_id}, function(err, event){
+      if(err){
+        console.log(err);
+      }
+      console.log(event);
+      currentEvent = event;
+      console.log('currentEvent', currentEvent);
+      res.json(event)
+    })
+  });
+
+app.use('/api', router);
+
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "./client", "build", "index.html"));
+});
+
+
+var server = app.listen(port, function() {
+  console.log(`api running on port ${port}`);
+});
+
 var wss = new WebSocketServer({server: server});
-
 let posts;
 let currentEvent;
 var error = function (err, response, body) {
@@ -103,71 +166,4 @@ wss.on('connection', function(ws) {
 
   })
 
-});
-
-//************************ ROUTES ************************
-
-
-
-
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
-
-app.use(function(req, res, next) {
- res.setHeader('Access-Control-Allow-Origin', '*');
- res.setHeader('Access-Control-Allow-Credentials', 'true');
- res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT,DELETE');
- res.setHeader('Access-Control-Allow-Headers', 'Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers');
- res.setHeader('Cache-Control', 'no-cache');
- next();
-});
-
-
-router.get('/', function(req, res) {
-  res.json({message: 'API initialized'});
-});
-
-
-router.route('/events')
-.get(function(req, res) {
-  Event.find(function(err, events){
-      res.json(events);
-  })
-
-})
-.post(function(req, res){
-  let newEvent = new Event();
-  newEvent.name = req.body.event.name;
-  newEvent.hashtag = req.body.event.hashtag;
-  newEvent.save(function(err, event) {
-    if (err){
-            res.send(err);
-    }
-    currentEvent = newEvent;
-    res.json(event);
-  });
-});
-
-router.route('/events/:event_id')
-  .get(function(req, res){
-    Event.findOne({_id: req.params.event_id}, function(err, event){
-      if(err){
-        console.log(err);
-      }
-      console.log(event);
-      currentEvent = event;
-      console.log('currentEvent', currentEvent);
-      res.json(event)
-    })
-  });
-
-app.use('/api', router);
-
-app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "./client", "build", "index.html"));
-});
-
-
-app.listen(port, function() {
-  console.log(`api running on port ${port}`);
 });
