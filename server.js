@@ -36,7 +36,6 @@ var error = function (err, response, body) {
     console.log(err);
 };
 
-
 function savePost(post, event_id){
   var twitterPost = post;
   Post.find({tweet_id: twitterPost.id}, function(err, post){
