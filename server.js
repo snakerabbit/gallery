@@ -1,6 +1,7 @@
 var express = require('express');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
+var http = require('http');
 require('dotenv').config()
 var app = express();
 var router = express.Router();
@@ -27,7 +28,8 @@ var twitter = new Twitter(config);
 //************************WEB SOCKET IMPLEMENTATION ************************
 
 var WebSocketServer = require('ws').Server;
-var wss = new WebSocketServer({server: app });
+var server = http.createServer(app);
+var wss = new WebSocketServer({server: app, port: 40510});
 let posts;
 let currentEvent;
 var error = function (err, response, body) {

@@ -46,12 +46,13 @@ export const updateEvent = event => dispatch =>(
 );
 
 export const setWebSocket = (id) => dispatch => {
-  var HOST = window.location.origin.replace(/^http/, 'ws')
-  var ws = new WebSocket(HOST);
-  // var ws = new WebSocket('ws://localhost:40510');
-  setInterval(()=> {
-    ws.send('yay');
-  }, 3000);
+  // var HOST = window.location.origin.replace(/^http/, 'ws')
+  // var ws = new WebSocket(HOST);
+  var ws = new WebSocket('ws://localhost:40510');
+      setInterval(()=> {
+        ws.send('yay');
+      }, 3000);
+
   ws.onmessage = function(){
     return dispatch(fetchEvent(id)).then(()=> dispatch(fetchMetaData(id)));
   }
