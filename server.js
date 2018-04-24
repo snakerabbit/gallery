@@ -11,7 +11,7 @@ var Event = require('./model/events');
 //************************ REACT SERVE *************************************
 
 var path = require("path");
-app.use(express.static(path.join(__dirname, "client", "public")));
+app.use(express.static(path.join(__dirname, "client", "build")));
 
 //************************ TWITTER CLIENT SETUP     ************************
 var config = {
@@ -97,68 +97,6 @@ wss.on('connection', function(ws) {
 
 });
 
-
-  // twitter.getSearch({'q':`#${dbEvent.hashtag}`,'count': 10, 'filter':'images', 'include_entities':true}, error, function success(data){
-  //30 requests per minute == 1 request every 2 seconds maximum
-  //https://developer.twitter.com/en/docs/basics/rate-limits.html;
-
-
-
-//     let currentEvent= JSON.parse(event);
-//     if(!clients[currentEvent._id]){
-//       clients[currentEvent._id] = ws;
-//     }
-//     Event.findOne({_id: currentEvent._id}, function(err, event){
-//       if(err){
-//         console.log('didnt find event');
-//       }
-//       let dbEvent = event;
-//       setInterval(function(){
-//           twitter.getSearch({'q':`#${dbEvent.hashtag}`,'count': 10, 'filter':'images', 'include_entities':true}, error, function success(data){
-//             let parsed = JSON.parse(data);
-//             let statuses = parsed.statuses;
-//             posts = statuses.filter(status => status.entities.media);
-//             console.log(posts);
-//             posts.forEach(post =>{
-//               Post.findOne({tweet_id: post.id_str}, function(error, foundpost){
-//                 if(foundpost){
-//                   posts = posts.filter(otherpost => otherpost.id_str !== post.id_str);
-//                   Post.remove({tweet_id: post.id});
-//                 }
-//                 let newPost = new Post();
-//                 newPost.user = post.user.name;
-//                 newPost.tweet_id = post.id_str;
-//                 newPost.tweet_url = `https://twitter.com/${post.user.screen_name}/status/${post.id_str}`;
-//                 newPost.created_at = post.created_at;
-//                 newPost.media_url = post.entities.media[0].media_url;
-//                 newPost.event_id = dbEvent.id;
-//                 newPost.profile_pic_url = post.user.profile_image_url;
-//                 newPost.save(function(err) {
-//                   if (err){
-//                     console.log(err);
-//                   }
-//                 });
-//                   dbEvent.posts.unshift(newPost);
-//
-//               })
-//
-//               if(dbEvent.posts.length > 20){
-//                 dbEvent.posts.shift();
-//               }
-//           });
-//           dbEvent.save(function(err, ev){
-//             ws.send(JSON.stringify(dbEvent));
-//           });
-//
-//       });
-//     }, 3000);
-//   });
-//
-// })
-//
-// });
-
-
 //************************ ROUTES ************************
 
 
@@ -218,7 +156,7 @@ router.route('/events/:event_id')
 app.use('/api', router);
 
 app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "./client", "public", "index.html"));
+    res.sendFile(path.join(__dirname, "./client", "build", "index.html"));
 });
 
 
