@@ -4,7 +4,7 @@ var bodyParser = require('body-parser');
 require('dotenv').config()
 var app = express();
 var router = express.Router();
-var port = process.env.API_PORT || 3001;
+var port = process.env.PORT || 3001;
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://user:password@ds243059.mlab.com:43059/eventgallery');
 var Post = require('./model/posts');
 var Event = require('./model/events');
