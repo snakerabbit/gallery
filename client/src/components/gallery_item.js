@@ -23,7 +23,6 @@ class GalleryItem extends React.Component {
 
   handleClick(e){
     e.preventDefault();
-    console.log(this.props.post.tweet_url);
     window.open(this.props.post.tweet_url);
   }
 

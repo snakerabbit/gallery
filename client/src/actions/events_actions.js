@@ -52,10 +52,10 @@ export const setWebSocket = (id) => dispatch => {
   var ws2 = new WebSocket('ws://localhost:3001');
       setInterval(()=> {
         try{
-                  ws.send('yay');
+                  ws.send(JSON.stringify(id));
         }
         catch(err) {
-                  ws2.send('yay');
+                  ws2.send(JSON.stringify(id));
         }
       }, 3000);
 

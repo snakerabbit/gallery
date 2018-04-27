@@ -25,9 +25,6 @@ var Twitter = require('twitter-node-client').Twitter;
 var twitter = new Twitter(config);
 
 
-//************************WEB SOCKET IMPLEMENTATION ************************
-
-var WebSocketServer = require('ws').Server;
 
 
 
@@ -66,6 +63,14 @@ router.route('/events')
   let newEvent = new Event();
   newEvent.name = req.body.event.name;
   newEvent.hashtag = req.body.event.hashtag;
+  searchTwitter(newEvent);
+  newEvent.posts = [];
+  Post.find({event_id: newEvent._id}, function(err, foundposts){
+    if(err){
+      console.log(err);
+    }
+    newEvent.posts = foundposts;
+  });
   newEvent.save(function(err, event) {
     if (err){
             res.send(err);
@@ -98,6 +103,9 @@ app.get("*", (req, res) => {
 var server = app.listen(port, function() {
   console.log(`api running on port ${port}`);
 });
+//************************WEB SOCKET IMPLEMENTATION ************************
+
+var WebSocketServer = require('ws').Server;
 
 var wss = new WebSocketServer({server: server});
 let posts;
@@ -124,35 +132,52 @@ function savePost(post, event_id){
   })
 }
 
+function searchTwitter(event){
+  var twitterQuery = {'q':`#${event.hashtag}`,
+                      'count': 10,
+                      'filter':'images',
+                      'include_entities':true
+                      };
+  twitter.getSearch(twitterQuery, error, function(data){
+    let statuses = JSON.parse(data).statuses;
+    posts = statuses.filter(status => status.entities.media);
+    if(posts){
+      posts.forEach(currentPost =>{
+        savePost(currentPost,event._id )
+        });
+    }
+})
+}
+
 wss.on('connection', function(ws) {
   //find event just created
   console.log('connected');
   ws.send('server connected');
   ws.on('message', function (message){
     //find current event
-    Event.findOne({_id: currentEvent._id}, function(err, event){
+    Event.findOne({_id: JSON.parse(message)}, function(err, event){
       if(err){
         console.log('not found');
       }
       //search twitter using event's hashtag
-      var twitterQuery = {'q':`#${event.hashtag}`,
-                          'count': 10,
-                          'filter':'images',
-                          'include_entities':true
-                          };
-      twitter.getSearch(twitterQuery, error, function(data){
-        let statuses = JSON.parse(data).statuses;
-        posts = statuses.filter(status => status.entities.media);
-        if(posts){
-          posts.forEach(currentPost =>{
-            savePost(currentPost,currentEvent._id )
-            });
-        }
-
-
-        });
+      searchTwitter(event);
+      // var twitterQuery = {'q':`#${event.hashtag}`,
+      //                     'count': 10,
+      //                     'filter':'images',
+      //                     'include_entities':true
+      //                     };
+      // twitter.getSearch(twitterQuery, error, function(data){
+      //   let statuses = JSON.parse(data).statuses;
+      //   posts = statuses.filter(status => status.entities.media);
+      //   if(posts){
+      //     posts.forEach(currentPost =>{
+      //       savePost(currentPost,currentEvent._id )
+      //       });
+      //   }
+      //
+      //
+      //   });
         Post.find({event_id: event._id}, function(err, foundposts){
-          console.log(foundposts);
           if(err){
             console.log(err);
           }
