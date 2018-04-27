@@ -64,13 +64,13 @@ router.route('/events')
   newEvent.name = req.body.event.name;
   newEvent.hashtag = req.body.event.hashtag;
   searchTwitter(newEvent);
-  newEvent.posts = [];
   Post.find({event_id: newEvent._id}, function(err, foundposts){
     if(err){
       console.log(err);
     }
     newEvent.posts = foundposts;
   });
+
   newEvent.save(function(err, event) {
     if (err){
             res.send(err);
@@ -113,24 +113,11 @@ let currentEvent;
 var error = function (err, response, body) {
     console.log(err);
 };
-
-function savePost(post, event_id){
-  var twitterPost = post;
-  Post.find({tweet_id: twitterPost.id}, function(err, post){
-    if(post.length === 0){
-      console.log('new post created');
-      let newPost = new Post();
-      newPost.user = twitterPost.user.name;
-      newPost.tweet_id = twitterPost.id;
-      newPost.created_at = twitterPost.created_at;
-      newPost.media_url = twitterPost.entities.media[0].media_url;
-      newPost.tweet_url = `https://twitter.com/${twitterPost.user.screen_name}/status/${twitterPost.id_str}`;
-      newPost.event_id = event_id;
-      newPost.profile_pic_url = twitterPost.user.profile_image_url;
-      newPost.save(error);
-    }
-  })
-}
+//
+// function savePost(post, event_id){
+//   var twitterPost = post;
+//
+// }
 
 function searchTwitter(event){
   var twitterQuery = {'q':`#${event.hashtag}`,
@@ -142,10 +129,25 @@ function searchTwitter(event){
     let statuses = JSON.parse(data).statuses;
     posts = statuses.filter(status => status.entities.media);
     if(posts){
-      posts.forEach(currentPost =>{
-        savePost(currentPost,event._id )
+      posts.map(currentPost =>{
+        Post.find({tweet_id: currentPost.id}, function(err, post){
+          if(post.length === 0){
+            let newPost = new Post();
+            newPost.user = currentPost.user.name;
+            newPost.tweet_id = currentPost.id;
+            newPost.created_at = currentPost.created_at;
+            newPost.media_url = currentPost.entities.media[0].media_url;
+            newPost.tweet_url = `https://twitter.com/${currentPost.user.screen_name}/status/${currentPost.id_str}`;
+            newPost.event_id = event._id;
+            newPost.profile_pic_url = currentPost.user.profile_image_url;
+            newPost.save(error);
+            return newPost;
+          }
+
+        })
         });
     }
+    console.log('searchTwitter posts', posts);
 })
 }
 
@@ -159,24 +161,7 @@ wss.on('connection', function(ws) {
       if(err){
         console.log('not found');
       }
-      //search twitter using event's hashtag
       searchTwitter(event);
-      // var twitterQuery = {'q':`#${event.hashtag}`,
-      //                     'count': 10,
-      //                     'filter':'images',
-      //                     'include_entities':true
-      //                     };
-      // twitter.getSearch(twitterQuery, error, function(data){
-      //   let statuses = JSON.parse(data).statuses;
-      //   posts = statuses.filter(status => status.entities.media);
-      //   if(posts){
-      //     posts.forEach(currentPost =>{
-      //       savePost(currentPost,currentEvent._id )
-      //       });
-      //   }
-      //
-      //
-      //   });
         Post.find({event_id: event._id}, function(err, foundposts){
           if(err){
             console.log(err);
@@ -190,5 +175,4 @@ wss.on('connection', function(ws) {
 
 
   })
-
 });
