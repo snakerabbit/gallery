@@ -94,7 +94,6 @@ class Gallery extends React.Component {
   }
 
   render(){
-    console.log(this.state.filteredPosts);
     if(this.props.event && this.props.metadata){
       return(
         <div className='gallery'>
