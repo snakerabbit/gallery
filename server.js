@@ -130,7 +130,7 @@ function searchTwitter(event){
     posts = statuses.filter(status => status.entities.media);
     if(posts){
       posts.map(currentPost =>{
-        Post.find({tweet_id: currentPost.id}, function(err, post){
+        Post.find({tweet_id: currentPost.id, event_id: event._id}, function(err, post){
           if(post.length === 0){
             let newPost = new Post();
             newPost.user = currentPost.user.name;

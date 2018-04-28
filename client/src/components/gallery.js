@@ -19,9 +19,11 @@ class Gallery extends React.Component {
 
   componentDidMount(){
     let id = this.props.match.params.event_id;
-    this.props.fetchEvent(id).then(()=> this.setState({
-      posts: this.props.event.posts
-    }));
+    this.props.fetchEvent(id).then(()=>{
+      this.setState({
+        posts:this.props.event.posts
+      })
+    });
     this.props.fetchMetaData(id);
     this.props.setWebSocket(id);
     }
@@ -80,7 +82,7 @@ class Gallery extends React.Component {
     else {
       return(
         <div className ='posts'>
-          {this.state.posts.map(post =>{
+          {this.props.event.posts.map(post =>{
             return(
               <div>
                     <GalleryItem post={post}/>
